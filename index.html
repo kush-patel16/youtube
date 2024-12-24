@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .header {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+        .download-link {
+            display: block;
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .download-link:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">YouTube Video Downloader</div>
+    <div class="container">
+        <h1>Download Your Video</h1>
+        <input type="text" id="video-link" placeholder="Enter YouTube video link" />
+        <button onclick="downloadVideo()">Download</button>
+        <p class="message" id="message"></p>
+        <a id="download-link" class="download-link" href="#" style="display: none;">Download Video</a>
+    </div>
+
+    <script>
+        async function downloadVideo() {
+            const link = document.getElementById('video-link').value;
+            const message = document.getElementById('message');
+            const downloadLink = document.getElementById('download-link');
+
+            message.textContent = 'Processing...';
+            downloadLink.style.display = 'none';
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/download', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ link }),
+});
+
+
+                const result = await response.json();
+                if (response.ok) {
+                    message.textContent = 'Download complete!';
+                    const filename = result.filename.split('/').pop();
+                    downloadLink.href = `/downloads/${filename}`; // Path to the downloaded file
+                    downloadLink.textContent = 'Click here to download your video';
+                    downloadLink.style.display = 'block';
+                } else {
+                    message.textContent = 'Error: ' + result.error;
+                }
+            } catch (error) {
+                message.textContent = 'Failed to connect to server.';
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
